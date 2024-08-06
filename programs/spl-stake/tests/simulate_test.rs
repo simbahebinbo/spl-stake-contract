@@ -63,7 +63,7 @@ async fn test_simulate() {
     );
 
     banks_client.process_transaction(tx).await.unwrap();
-    
+
     // 创建并发送初始化 token account 的指令
     let init_token_account_ix = spl_token::instruction::initialize_account(
         &token::ID,
@@ -102,4 +102,3 @@ async fn test_simulate() {
 
     banks_client.process_transaction(simulate_tx).await.unwrap();
 }
-
