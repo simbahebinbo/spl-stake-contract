@@ -17,7 +17,7 @@ pub mod spl_stake {
 
     pub fn set_supported_token(ctx: Context<SetSupportedToken>, mint: Pubkey) -> Result<()> {
         let staking_account = &mut ctx.accounts.staking_account;
-        require!(staking_account.admin == *ctx.accounts.admin.key, CustomError::Unauthorized);
+        require!(staking_account.admin == *ctx.accounts.admin.key, StakingError::Unauthorized);
         staking_account.supported_token = mint;
         Ok(())
     }
@@ -38,7 +38,7 @@ pub mod spl_stake {
 
     pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
-        require!(user_account.balance >= amount, CustomError::InsufficientFunds);
+        require!(user_account.balance >= amount, StakingError::InsufficientFunds);
         let cpi_accounts = Transfer {
             from: ctx.accounts.staking_token_account.to_account_info(),
             to: ctx.accounts.user_token_account.to_account_info(),
@@ -130,7 +130,7 @@ pub struct UserAccount {
 }
 
 #[error_code]
-pub enum CustomError {
+pub enum StakingError {
     #[msg("Unauthorized")]
     Unauthorized,
     #[msg("Insufficient Funds")]
