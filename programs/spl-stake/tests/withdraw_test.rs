@@ -31,7 +31,7 @@ async fn test_withdraw() {
         program_id,
         accounts: spl_stake::accounts::ResetUserAccount {
             user_account: user_account.pubkey(),
-            user: user.pubkey(),
+            admin: admin.pubkey(),
             system_program: system_program::ID,
         }
             .to_account_metas(None),
@@ -40,8 +40,8 @@ async fn test_withdraw() {
 
     let reset_user_account_tx = Transaction::new_signed_with_payer(
         &[reset_user_account_ix],
-        Some(&user.pubkey()),
-        &[&user, &user_account],
+        Some(&admin.pubkey()),
+        &[&admin, &user_account],
         recent_blockhash,
     );
 

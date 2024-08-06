@@ -67,23 +67,6 @@ pub mod spl_stake {
         user_account.balance = 0;
         Ok(())
     }
-
-    // just debug
-    pub fn simulate(ctx: Context<Simulate>) -> Result<()> {
-        Ok(())
-    }
-}
-
-
-#[derive(Accounts)]
-pub struct Simulate<'info> {
-    #[account(mut)]
-    pub payer: Signer<'info>,
-    pub token_program: Program<'info, Token>,
-    #[account(mut)]
-    pub token_account: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub mint: Account<'info, Mint>,
 }
 
 
@@ -149,10 +132,10 @@ pub struct StakingAccount {
 
 #[derive(Accounts)]
 pub struct ResetUserAccount<'info> {
-    #[account(init_if_needed, payer = user, space = 8 + UserAccount::LEN)]
+    #[account(init_if_needed, payer = admin, space = 8 + UserAccount::LEN)]
     pub user_account: Account<'info, UserAccount>,
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub admin: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 
