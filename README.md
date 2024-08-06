@@ -1,5 +1,13 @@
 # spl-stake
 
+SPL 质押合约
+
+功能：
+1、管理员（admin）允许设置支持的币种 SPL Token
+2、用户（user）允许存入和提取SPL Token
+3、合约跟踪和记录每个用户的 SPL Token 余额
+4、测试币水龙头，用户可以领取 SPL 测试币。
+
 ```shell
 $ cargo version
 cargo 1.80.0 (376290515 2024-07-16)
@@ -61,4 +69,10 @@ $ solana-test-validator
 
 ```shell
 $ anchor deploy
+```
+
+* 验证 IDL
+
+```shell
+anchor idl init --filepath target/idl/spl_stake_contract.json
 ```

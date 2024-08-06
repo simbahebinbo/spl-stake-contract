@@ -1,3 +1,4 @@
+use anchor_lang::Discriminator;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
 
@@ -88,10 +89,10 @@ pub struct Simulate<'info> {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = admin, space = 8 + 32 + 32)]
+    #[account(init, payer = deployer, space = 8 + 32 + 32)]
     pub staking_account: Account<'info, StakingAccount>,
     #[account(mut)]
-    pub admin: Signer<'info>,
+    pub deployer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -175,3 +176,12 @@ pub enum StakingError {
     #[msg("Insufficient Funds")]
     InsufficientFunds,
 }
+
+// impl Discriminator for TokenAccount {
+//     const DISCRIMINATOR: [u8; 8] = [116, 111, 107, 101, 110, 65, 99, 99];
+//
+//     fn discriminator() -> [u8; 8] {
+//         // 设置一个具体的 8 字节值
+//         [116, 111, 107, 101, 110, 65, 99, 99] // "tokenAcc" 的 ASCII 值
+//     }
+// }

@@ -15,6 +15,7 @@ async fn test_initialize() {
     let SetUpTest {
         program_id,
         pt,
+        deployer,
         admin,
         staking_account,
     } = SetUpTest::new();
@@ -26,7 +27,7 @@ async fn test_initialize() {
         program_id: program_id,
         accounts: spl_stake::accounts::Initialize {
             staking_account: staking_account.pubkey(),
-            admin: admin.pubkey(),
+            deployer: deployer.pubkey(),
             system_program: system_program::ID,
         }
             .to_account_metas(None),
@@ -35,8 +36,8 @@ async fn test_initialize() {
 
     let initialize_tx = Transaction::new_signed_with_payer(
         &[initialize_ix],
-        Some(&admin.pubkey()),
-        &[&admin, &staking_account],
+        Some(&deployer.pubkey()),
+        &[&deployer, &staking_account],
         recent_blockhash,
     );
 
@@ -54,6 +55,7 @@ async fn test_initialize() {
 pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
+    pub deployer: Keypair,
     pub admin: Keypair,
     pub staking_account: Keypair,
 }
@@ -65,6 +67,9 @@ impl SetUpTest {
         pt.set_compute_max_units(1200_000);
 
         let mut accounts: Vec<Keypair> = Vec::new();
+
+        let deployer = Keypair::new();
+        accounts.push(deployer.insecure_clone());
         let admin = Keypair::new();
         accounts.push(admin.insecure_clone());
         let staking_account = Keypair::new();
@@ -85,6 +90,7 @@ impl SetUpTest {
         Self {
             program_id,
             pt,
+            deployer,
             admin,
             staking_account,
         }
