@@ -28,7 +28,7 @@ pub mod spl_stake {
     //     staking_account.supported_token = mint;
     //     Ok(())
     // }
-    //
+
     // pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     //     let user_account = &mut ctx.accounts.user_account;
     //     let cpi_accounts = Transfer {
@@ -61,10 +61,10 @@ pub mod spl_stake {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = signer, space = 8 + 32 + 32)]
+    #[account(init, payer = admin, space = 8 + 32 + 32)]
     pub staking_account: Account<'info, StakingAccount>,
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub admin: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 

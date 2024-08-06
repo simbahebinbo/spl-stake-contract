@@ -24,7 +24,7 @@ async fn test_initialize() {
         program_id: program_id,
         accounts: spl_stake::accounts::Initialize {
             staking_account: staking_account.pubkey(),
-            signer: signer.pubkey(),
+            admin: admin.pubkey(),
             system_program: system_program::ID,
         }
             .to_account_metas(None),
@@ -33,11 +33,11 @@ async fn test_initialize() {
 
     let signed_txs = Transaction::new_signed_with_payer(
         &[initialize_ix],
-        Some(&signer.pubkey()),
-        &[&signer, &staking_account],
+        Some(&admin.pubkey()),
+        &[&admin, &staking_account],
         recent_blockhash,
     );
-    
+
     banks_client.process_transaction(signed_txs).await.unwrap();
 }
 
