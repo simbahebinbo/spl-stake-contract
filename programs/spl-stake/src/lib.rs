@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
-use solana_program::entrypoint::ProgramResult;
 
 declare_id!("4gzQgfWr98rvu5WqJZophHUS42rMWAz6yntxyEdqcQNY");
 
@@ -69,7 +68,7 @@ pub mod spl_stake {
     // }
 
     // just debug
-    pub fn simulate(ctx: Context<Simulate>) -> ProgramResult {
+    pub fn simulate(ctx: Context<Simulate>) -> Result<()> {
         Ok(())
     }
 }
