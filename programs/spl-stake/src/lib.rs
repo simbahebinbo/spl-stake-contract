@@ -3,7 +3,6 @@ use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
 
 declare_id!("4gzQgfWr98rvu5WqJZophHUS42rMWAz6yntxyEdqcQNY");
 
-
 #[program]
 pub mod spl_stake {
     use super::*;
@@ -13,7 +12,6 @@ pub mod spl_stake {
         staking_account.admin = admin;
         Ok(())
     }
-
 
     pub fn set_supported_token(ctx: Context<SetSupportedToken>, mint: Pubkey) -> Result<()> {
         let staking_account = &mut ctx.accounts.staking_account;
@@ -62,6 +60,43 @@ pub mod spl_stake {
         token::mint_to(cpi_ctx, amount)?;
         Ok(())
     }
+
+    // pub fn init_user_account(ctx: Context<InitializeUserAccount>) -> Result<()> {
+    //     let user_account = &mut ctx.accounts.user_account;
+    //     user_account.balance = 0;
+    //     Ok(())
+    // }
+
+    // just debug
+    pub fn simulate(ctx: Context<Simulate>) -> Result<()> {
+        Ok(())
+    }
+}
+
+
+#[derive(Accounts)]
+pub struct Simulate<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+    #[account(mut)]
+    pub token_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+}
+
+
+// #[derive(Accounts)]
+// pub struct InitializeUserAccount<'info> {
+//     #[account(init, payer = user, space = 8 + UserAccount::LEN)]
+//     pub user_account: Account<'info, UserAccount>,
+//     #[account(mut)]
+//     pub user: Signer<'info>,
+//     pub system_program: Program<'info, System>,
+// }
+
+impl UserAccount {
+    const LEN: usize = 8 + 8; // 8字节的账户头 + 8字节的余额
 }
 
 #[derive(Accounts)]
@@ -136,4 +171,3 @@ pub enum StakingError {
     #[msg("Insufficient Funds")]
     InsufficientFunds,
 }
-

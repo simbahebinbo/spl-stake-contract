@@ -10,7 +10,7 @@ use solana_sdk::transaction::Transaction;
 use spl_stake::StakingAccount;
 
 #[tokio::test]
-async fn test_initialize() {
+async fn test_set_supported_token() {
     let SetUpTest {
         program_id,
         pt,
@@ -19,9 +19,9 @@ async fn test_initialize() {
         staking_account,
     } = SetUpTest::new();
 
-
     let (mut banks_client, payer, recent_blockhash) = pt.start().await;
 
+    // 调用 initialize 指令来初始化 staking_account
     let initialize_ix = Instruction {
         program_id: program_id,
         accounts: spl_stake::accounts::Initialize {
@@ -39,16 +39,38 @@ async fn test_initialize() {
         &[&admin, &staking_account],
         recent_blockhash,
     );
- 
+
     banks_client.process_transaction(initialize_tx).await.unwrap();
 
-    // 检查 staking_account 是否正确设置了 admin
+    // 设置 supported_token
+    let supported_token = Pubkey::new_unique();
+
+    let set_supported_token_ix = Instruction {
+        program_id: program_id,
+        accounts: spl_stake::accounts::SetSupportedToken {
+            staking_account: staking_account.pubkey(),
+            admin: admin.pubkey(),
+        }
+            .to_account_metas(None),
+        data: spl_stake::instruction::SetSupportedToken { mint: supported_token }.data(),
+    };
+
+    let set_supported_token_tx = Transaction::new_signed_with_payer(
+        &[set_supported_token_ix],
+        Some(&admin.pubkey()),
+        &[&admin],
+        recent_blockhash,
+    );
+
+    banks_client.process_transaction(set_supported_token_tx).await.unwrap();
+
+    // 检查 staking_account 是否正确设置了 supported_token
     let staking_account_data: StakingAccount = load_and_deserialize(
         banks_client.clone(),
         staking_account.pubkey(),
     ).await;
 
-    assert_eq!(staking_account_data.admin, admin.pubkey());
+    assert_eq!(staking_account_data.supported_token, supported_token);
 }
 
 pub struct SetUpTest {
