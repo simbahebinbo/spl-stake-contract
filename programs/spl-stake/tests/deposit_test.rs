@@ -10,7 +10,7 @@ use solana_sdk::signature::Keypair;
 use solana_sdk::signer::Signer;
 use solana_sdk::transaction::Transaction;
 
-use spl_stake::{StakingAccount, UserAccount};
+use spl_stake::UserAccount;
 
 #[tokio::test]
 async fn test_deposit() {
@@ -18,7 +18,6 @@ async fn test_deposit() {
         program_id,
         pt,
         admin,
-        staking_account,
         user,
         user_account,
         staking_token_account,
@@ -183,7 +182,6 @@ pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
     pub admin: Keypair,
-    pub staking_account: Keypair,
     pub user: Keypair,
     pub user_account: Keypair,
     pub staking_token_account: Keypair,
@@ -200,8 +198,6 @@ impl SetUpTest {
         let mut accounts: Vec<Keypair> = Vec::new();
         let admin = Keypair::new();
         accounts.push(admin.insecure_clone());
-        let staking_account = Keypair::new();
-        accounts.push(staking_account.insecure_clone());
         // 创建用户和质押账户
         let user = Keypair::new();
         accounts.push(user.insecure_clone());
@@ -264,7 +260,6 @@ impl SetUpTest {
             program_id,
             pt,
             admin,
-            staking_account,
             user,
             user_account,
             staking_token_account,
