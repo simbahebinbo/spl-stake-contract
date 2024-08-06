@@ -52,7 +52,7 @@ async fn test_simulate() {
         &mint,
         &payer.pubkey(),
         None,
-        0, // decimals
+        9, // decimals
     ).unwrap();
 
     let tx = Transaction::new_signed_with_payer(

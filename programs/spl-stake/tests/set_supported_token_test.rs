@@ -3,6 +3,7 @@ use solana_program::instruction::Instruction;
 use solana_program::pubkey::Pubkey;
 use solana_program::system_program;
 use solana_program_test::{BanksClient, ProgramTest};
+use solana_sdk::account::Account;
 use solana_sdk::signature::Keypair;
 use solana_sdk::signer::Signer;
 use solana_sdk::transaction::Transaction;
@@ -15,7 +16,6 @@ async fn test_set_supported_token() {
         program_id,
         pt,
         signer,
-        admin,
         staking_account,
     } = SetUpTest::new();
 
@@ -26,17 +26,17 @@ async fn test_set_supported_token() {
         program_id: program_id,
         accounts: spl_stake::accounts::Initialize {
             staking_account: staking_account.pubkey(),
-            admin: admin.pubkey(),
+            admin: signer.pubkey(),
             system_program: system_program::ID,
         }
             .to_account_metas(None),
-        data: spl_stake::instruction::Initialize { admin: admin.pubkey() }.data(),
+        data: spl_stake::instruction::Initialize { admin: signer.pubkey() }.data(),
     };
 
     let initialize_tx = Transaction::new_signed_with_payer(
         &[initialize_ix],
-        Some(&admin.pubkey()),
-        &[&admin, &staking_account],
+        Some(&signer.pubkey()),
+        &[&signer, &staking_account],
         recent_blockhash,
     );
 
@@ -49,7 +49,7 @@ async fn test_set_supported_token() {
         program_id: program_id,
         accounts: spl_stake::accounts::SetSupportedToken {
             staking_account: staking_account.pubkey(),
-            admin: admin.pubkey(),
+            admin: signer.pubkey(),
         }
             .to_account_metas(None),
         data: spl_stake::instruction::SetSupportedToken { mint: supported_token }.data(),
@@ -57,8 +57,8 @@ async fn test_set_supported_token() {
 
     let set_supported_token_tx = Transaction::new_signed_with_payer(
         &[set_supported_token_ix],
-        Some(&admin.pubkey()),
-        &[&admin],
+        Some(&signer.pubkey()),
+        &[&signer],
         recent_blockhash,
     );
 
@@ -77,7 +77,6 @@ pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
     pub signer: Keypair,
-    pub admin: Keypair,
     pub staking_account: Keypair,
 }
 
@@ -90,8 +89,6 @@ impl SetUpTest {
         let mut accounts: Vec<Keypair> = Vec::new();
         let signer = Keypair::new();
         accounts.push(signer.insecure_clone());
-        let admin = Keypair::new();
-        accounts.push(admin.insecure_clone());
         let staking_account = Keypair::new();
         accounts.push(staking_account.insecure_clone());
 
@@ -100,9 +97,9 @@ impl SetUpTest {
             //create a new account and fund with 1 SOL
             pt.add_account(
                 account.pubkey(),
-                solana_sdk::account::Account {
+                Account {
                     lamports: 1_000_000_000,
-                    ..solana_sdk::account::Account::default()
+                    ..Account::default()
                 },
             );
         }
@@ -111,7 +108,6 @@ impl SetUpTest {
             program_id,
             pt,
             signer,
-            admin,
             staking_account,
         }
     }

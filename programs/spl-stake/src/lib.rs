@@ -61,11 +61,11 @@ pub mod spl_stake {
         Ok(())
     }
 
-    // pub fn init_user_account(ctx: Context<InitializeUserAccount>) -> Result<()> {
-    //     let user_account = &mut ctx.accounts.user_account;
-    //     user_account.balance = 0;
-    //     Ok(())
-    // }
+    pub fn reset_user_account(ctx: Context<ResetUserAccount>) -> Result<()> {
+        let user_account = &mut ctx.accounts.user_account;
+        user_account.balance = 0;
+        Ok(())
+    }
 
     // just debug
     pub fn simulate(ctx: Context<Simulate>) -> Result<()> {
@@ -86,15 +86,16 @@ pub struct Simulate<'info> {
 }
 
 
-// #[derive(Accounts)]
-// pub struct InitializeUserAccount<'info> {
-//     #[account(init, payer = user, space = 8 + UserAccount::LEN)]
-//     pub user_account: Account<'info, UserAccount>,
-//     #[account(mut)]
-//     pub user: Signer<'info>,
-//     pub system_program: Program<'info, System>,
-// }
+#[derive(Accounts)]
+pub struct ResetUserAccount<'info> {
+    #[account(init, payer = user, space = 8 + UserAccount::LEN)]
+    pub user_account: Account<'info, UserAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
 
+#[warn(dead_code)]
 impl UserAccount {
     const LEN: usize = 8 + 8; // 8字节的账户头 + 8字节的余额
 }
