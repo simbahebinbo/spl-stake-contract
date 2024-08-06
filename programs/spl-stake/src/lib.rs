@@ -1,4 +1,3 @@
-use anchor_lang::Discriminator;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
 
@@ -65,6 +64,10 @@ pub mod spl_stake {
     pub fn reset_user_account(ctx: Context<ResetUserAccount>) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
         user_account.balance = 0;
+        Ok(())
+    }
+
+    pub fn simulate(ctx: Context<Simulate>) -> Result<()> {
         Ok(())
     }
 }
@@ -139,6 +142,17 @@ pub struct ResetUserAccount<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct Simulate<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+    #[account(mut)]
+    pub token_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+}
+
 #[account]
 pub struct UserAccount {
     pub balance: u64,
@@ -160,11 +174,3 @@ pub enum StakingError {
     InsufficientFunds,
 }
 
-// impl Discriminator for TokenAccount {
-//     const DISCRIMINATOR: [u8; 8] = [116, 111, 107, 101, 110, 65, 99, 99];
-//
-//     fn discriminator() -> [u8; 8] {
-//         // 设置一个具体的 8 字节值
-//         [116, 111, 107, 101, 110, 65, 99, 99] // "tokenAcc" 的 ASCII 值
-//     }
-// }

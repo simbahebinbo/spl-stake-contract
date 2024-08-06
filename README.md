@@ -74,5 +74,5 @@ $ anchor deploy
 * 验证 IDL
 
 ```shell
-anchor idl init --filepath target/idl/spl_stake_contract.json
+anchor idl init --filepath target/idl/spl_stake.json 4gzQgfWr98rvu5WqJZophHUS42rMWAz6yntxyEdqcQNY
 ```
