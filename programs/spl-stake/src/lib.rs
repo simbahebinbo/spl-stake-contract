@@ -21,7 +21,7 @@ pub mod spl_stake {
     }
 
     pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
-        let user_account = &mut ctx.accounts.user_account;
+        // let user_account = &mut ctx.accounts.user_account;
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_token_account.to_account_info(),
             to: ctx.accounts.staking_token_account.to_account_info(),
@@ -30,7 +30,7 @@ pub mod spl_stake {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, amount)?;
-        user_account.balance += amount;
+        // user_account.balance += amount;
         Ok(())
     }
 
@@ -87,20 +87,6 @@ pub struct Simulate<'info> {
 
 
 #[derive(Accounts)]
-pub struct ResetUserAccount<'info> {
-    #[account(init, payer = user, space = 8 + UserAccount::LEN)]
-    pub user_account: Account<'info, UserAccount>,
-    #[account(mut)]
-    pub user: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[warn(dead_code)]
-impl UserAccount {
-    const LEN: usize = 8 + 8; // 8字节的账户头 + 8字节的余额
-}
-
-#[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(init, payer = admin, space = 8 + 32 + 32)]
     pub staking_account: Account<'info, StakingAccount>,
@@ -119,8 +105,8 @@ pub struct SetSupportedToken<'info> {
 
 #[derive(Accounts)]
 pub struct Deposit<'info> {
-    #[account(mut)]
-    pub user_account: Account<'info, UserAccount>,
+    // #[account(mut)]
+    // pub user_account: Account<'info, UserAccount>,
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(mut)]
@@ -160,9 +146,26 @@ pub struct StakingAccount {
     pub supported_token: Pubkey,
 }
 
+#[derive(Accounts)]
+pub struct ResetUserAccount<'info> {
+    #[account(init_if_needed, payer = user, space = 8 + UserAccount::LEN)]
+    pub user_account: Account<'info, UserAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
 #[account]
 pub struct UserAccount {
     pub balance: u64,
+}
+
+impl UserAccount {
+    pub const LEN: usize = 8 + 8; // 8字节的鉴别符 + 8字节的余额
+
+    pub fn discriminator() -> [u8; 8] {
+        *b"usraccnt" // 8字节的鉴别符
+    }
 }
 
 #[error_code]

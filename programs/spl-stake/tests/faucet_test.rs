@@ -16,7 +16,7 @@ async fn test_faucet() {
     let SetUpTest {
         program_id,
         pt,
-        signer,
+        admin,
         mint,
         user_token_account,
     } = SetUpTest::new();
@@ -28,15 +28,15 @@ async fn test_faucet() {
     let init_mint_ix = token::spl_token::instruction::initialize_mint(
         &token::ID,
         &mint,
-        &signer.pubkey(),
+        &admin.pubkey(),
         None,
         9, // decimals
     ).unwrap();
 
     let tx = Transaction::new_signed_with_payer(
         &[init_mint_ix],
-        Some(&signer.pubkey()),
-        &[&signer],
+        Some(&admin.pubkey()),
+        &[&admin],
         recent_blockhash,
     );
 
@@ -47,17 +47,17 @@ async fn test_faucet() {
         &token::ID,
         &user_token_account,
         &mint,
-        &signer.pubkey(),
+        &admin.pubkey(),
     ).unwrap();
 
-    let tx = Transaction::new_signed_with_payer(
+    let init_token_account_tx = Transaction::new_signed_with_payer(
         &[init_token_account_ix],
-        Some(&signer.pubkey()),
-        &[&signer],
+        Some(&admin.pubkey()),
+        &[&admin],
         recent_blockhash,
     );
 
-    banks_client.process_transaction(tx).await.unwrap();
+    banks_client.process_transaction(init_token_account_tx).await.unwrap();
 
 
     // 设置铸币金额
@@ -69,7 +69,7 @@ async fn test_faucet() {
         accounts: spl_stake::accounts::Faucet {
             mint: mint,
             user_token_account: user_token_account,
-            admin: signer.pubkey(),
+            admin: admin.pubkey(),
             token_program: token::ID,
         }
             .to_account_metas(None),
@@ -78,8 +78,8 @@ async fn test_faucet() {
 
     let faucet_tx = Transaction::new_signed_with_payer(
         &[faucet_ix],
-        Some(&signer.pubkey()),
-        &[&signer],
+        Some(&admin.pubkey()),
+        &[&admin],
         recent_blockhash,
     );
     banks_client.process_transaction(faucet_tx).await.unwrap();
@@ -96,7 +96,7 @@ async fn test_faucet() {
 pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
-    pub signer: Keypair,
+    pub admin: Keypair,
     pub mint: Pubkey,
     pub user_token_account: Pubkey,
 }
@@ -108,8 +108,8 @@ impl SetUpTest {
         pt.set_compute_max_units(1200_000);
 
         let mut accounts: Vec<Keypair> = Vec::new();
-        let signer = Keypair::new();
-        accounts.push(signer.insecure_clone());
+        let admin = Keypair::new();
+        accounts.push(admin.insecure_clone());
 
         for account in accounts {
             //create a new account and fund with 1 SOL
@@ -152,7 +152,7 @@ impl SetUpTest {
         Self {
             program_id,
             pt,
-            signer,
+            admin,
             mint,
             user_token_account,
         }

@@ -17,7 +17,7 @@ async fn test_reset_user_account() {
     let SetUpTest {
         program_id,
         pt,
-        signer,
+        user,
         user_account,
     } = SetUpTest::new();
 
@@ -28,7 +28,7 @@ async fn test_reset_user_account() {
         program_id: program_id,
         accounts: spl_stake::accounts::ResetUserAccount {
             user_account: user_account.pubkey(),
-            user: signer.pubkey(),
+            user: user.pubkey(),
             system_program: system_program::ID,
         }
             .to_account_metas(None),
@@ -37,8 +37,8 @@ async fn test_reset_user_account() {
 
     let reset_user_account_tx = Transaction::new_signed_with_payer(
         &[reset_user_account_ix],
-        Some(&signer.pubkey()),
-        &[&signer, &user_account],
+        Some(&user.pubkey()),
+        &[&user, &user_account],
         recent_blockhash,
     );
 
@@ -58,7 +58,7 @@ async fn test_reset_user_account() {
 pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
-    pub signer: Keypair,
+    pub user: Keypair,
     pub user_account: Keypair,
 }
 
@@ -69,8 +69,8 @@ impl SetUpTest {
         pt.set_compute_max_units(1200_000);
 
         let mut accounts: Vec<Keypair> = Vec::new();
-        let signer = Keypair::new();
-        accounts.push(signer.insecure_clone());
+        let user = Keypair::new();
+        accounts.push(user.insecure_clone());
         let user_account = Keypair::new();
         accounts.push(user_account.insecure_clone());
 
@@ -89,7 +89,7 @@ impl SetUpTest {
         Self {
             program_id,
             pt,
-            signer,
+            user,
             user_account,
         }
     }

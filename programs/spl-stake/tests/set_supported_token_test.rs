@@ -15,7 +15,7 @@ async fn test_set_supported_token() {
     let SetUpTest {
         program_id,
         pt,
-        signer,
+        admin,
         staking_account,
     } = SetUpTest::new();
 
@@ -26,17 +26,17 @@ async fn test_set_supported_token() {
         program_id: program_id,
         accounts: spl_stake::accounts::Initialize {
             staking_account: staking_account.pubkey(),
-            admin: signer.pubkey(),
+            admin: admin.pubkey(),
             system_program: system_program::ID,
         }
             .to_account_metas(None),
-        data: spl_stake::instruction::Initialize { admin: signer.pubkey() }.data(),
+        data: spl_stake::instruction::Initialize { admin: admin.pubkey() }.data(),
     };
 
     let initialize_tx = Transaction::new_signed_with_payer(
         &[initialize_ix],
-        Some(&signer.pubkey()),
-        &[&signer, &staking_account],
+        Some(&admin.pubkey()),
+        &[&admin, &staking_account],
         recent_blockhash,
     );
 
@@ -49,7 +49,7 @@ async fn test_set_supported_token() {
         program_id: program_id,
         accounts: spl_stake::accounts::SetSupportedToken {
             staking_account: staking_account.pubkey(),
-            admin: signer.pubkey(),
+            admin: admin.pubkey(),
         }
             .to_account_metas(None),
         data: spl_stake::instruction::SetSupportedToken { mint: supported_token }.data(),
@@ -57,8 +57,8 @@ async fn test_set_supported_token() {
 
     let set_supported_token_tx = Transaction::new_signed_with_payer(
         &[set_supported_token_ix],
-        Some(&signer.pubkey()),
-        &[&signer],
+        Some(&admin.pubkey()),
+        &[&admin],
         recent_blockhash,
     );
 
@@ -76,7 +76,7 @@ async fn test_set_supported_token() {
 pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
-    pub signer: Keypair,
+    pub admin: Keypair,
     pub staking_account: Keypair,
 }
 
@@ -87,8 +87,8 @@ impl SetUpTest {
         pt.set_compute_max_units(1200_000);
 
         let mut accounts: Vec<Keypair> = Vec::new();
-        let signer = Keypair::new();
-        accounts.push(signer.insecure_clone());
+        let admin = Keypair::new();
+        accounts.push(admin.insecure_clone());
         let staking_account = Keypair::new();
         accounts.push(staking_account.insecure_clone());
 
@@ -107,7 +107,7 @@ impl SetUpTest {
         Self {
             program_id,
             pt,
-            signer,
+            admin,
             staking_account,
         }
     }
