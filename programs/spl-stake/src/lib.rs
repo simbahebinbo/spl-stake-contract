@@ -1,15 +1,8 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
 
 declare_id!("4gzQgfWr98rvu5WqJZophHUS42rMWAz6yntxyEdqcQNY");
 
-// const PDA_SEED: &[u8] = b"hello";
-
-// #[derive(AnchorSerialize, AnchorDeserialize)]
-// pub struct UserInfoParams {
-//     pub name: String,
-//     pub age: u8,
-// }
 
 #[program]
 pub mod spl_stake {
@@ -22,41 +15,53 @@ pub mod spl_stake {
     }
 
 
-    // pub fn set_supported_token(ctx: Context<SetSupportedToken>, mint: Pubkey) -> Result<()> {
-    //     let staking_account = &mut ctx.accounts.staking_account;
-    //     require!(staking_account.admin == *ctx.accounts.admin.key, CustomError::Unauthorized);
-    //     staking_account.supported_token = mint;
-    //     Ok(())
-    // }
+    pub fn set_supported_token(ctx: Context<SetSupportedToken>, mint: Pubkey) -> Result<()> {
+        let staking_account = &mut ctx.accounts.staking_account;
+        require!(staking_account.admin == *ctx.accounts.admin.key, CustomError::Unauthorized);
+        staking_account.supported_token = mint;
+        Ok(())
+    }
 
-    // pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
-    //     let user_account = &mut ctx.accounts.user_account;
-    //     let cpi_accounts = Transfer {
-    //         from: ctx.accounts.user_token_account.to_account_info(),
-    //         to: ctx.accounts.staking_token_account.to_account_info(),
-    //         authority: ctx.accounts.user.to_account_info(),
-    //     };
-    //     let cpi_program = ctx.accounts.token_program.to_account_info();
-    //     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-    //     token::transfer(cpi_ctx, amount)?;
-    //     user_account.balance += amount;
-    //     Ok(())
-    // }
-    //
-    // pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
-    //     let user_account = &mut ctx.accounts.user_account;
-    //     require!(user_account.balance >= amount, CustomError::InsufficientFunds);
-    //     let cpi_accounts = Transfer {
-    //         from: ctx.accounts.staking_token_account.to_account_info(),
-    //         to: ctx.accounts.user_token_account.to_account_info(),
-    //         authority: ctx.accounts.admin.to_account_info(),
-    //     };
-    //     let cpi_program = ctx.accounts.token_program.to_account_info();
-    //     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-    //     token::transfer(cpi_ctx, amount)?;
-    //     user_account.balance -= amount;
-    //     Ok(())
-    // }
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        let user_account = &mut ctx.accounts.user_account;
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.user_token_account.to_account_info(),
+            to: ctx.accounts.staking_token_account.to_account_info(),
+            authority: ctx.accounts.user.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::transfer(cpi_ctx, amount)?;
+        user_account.balance += amount;
+        Ok(())
+    }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        let user_account = &mut ctx.accounts.user_account;
+        require!(user_account.balance >= amount, CustomError::InsufficientFunds);
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.staking_token_account.to_account_info(),
+            to: ctx.accounts.user_token_account.to_account_info(),
+            authority: ctx.accounts.admin.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::transfer(cpi_ctx, amount)?;
+        user_account.balance -= amount;
+        Ok(())
+    }
+
+    pub fn faucet(ctx: Context<Faucet>, amount: u64) -> Result<()> {
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.mint.to_account_info(),
+            to: ctx.accounts.user_token_account.to_account_info(),
+            authority: ctx.accounts.admin.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::mint_to(cpi_ctx, amount)?;
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -102,6 +107,17 @@ pub struct Withdraw<'info> {
     pub token_program: Program<'info, Token>,
 }
 
+#[derive(Accounts)]
+pub struct Faucet<'info> {
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+    #[account(mut)]
+    pub user_token_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub admin: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+}
+
 #[account]
 pub struct StakingAccount {
     pub admin: Pubkey,
@@ -113,45 +129,11 @@ pub struct UserAccount {
     pub balance: u64,
 }
 
-// #[error]
-// pub enum CustomError {
-//     #[msg("Unauthorized")]
-//     Unauthorized,
-//     #[msg("Insufficient Funds")]
-//     InsufficientFunds,
-// }
+#[error_code]
+pub enum CustomError {
+    #[msg("Unauthorized")]
+    Unauthorized,
+    #[msg("Insufficient Funds")]
+    InsufficientFunds,
+}
 
-
-// #[program]
-// pub mod spl_stake {
-//     use super::*;
-//
-//     pub fn initialize(ctx: Context<Initialize>, params: UserInfoParams) -> Result<()> {
-//         let user_data = &mut ctx.accounts.data;
-//         user_data.name = params.name;
-//         user_data.age = params.age;
-//         Ok(())
-//     }
-// }
-
-// #[account]
-// pub struct UserInfo {
-//     pub name: String,
-//     pub age: u8,
-// }
-
-// #[derive(Accounts)]
-// #[instruction(instruction_data: UserInfoParams)]
-// pub struct Initialize<'info> {
-//     #[account(
-//         init,
-//         seeds = [PDA_SEED, authority.key().as_ref()],
-//         bump,
-//         payer = authority,
-//         space = 8 + 4 + instruction_data.name.len() * 2 + 1,
-//     )]
-//     pub data: Account<'info, UserInfo>,
-//     #[account(mut)]
-//     pub authority: Signer<'info>,
-//     pub system_program: Program<'info, System>,
-// }
