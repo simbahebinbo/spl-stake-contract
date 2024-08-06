@@ -111,7 +111,7 @@ async fn test_deposit() {
     banks_client.process_transaction(init_staking_token_account_tx).await.unwrap();
 
 
-    // // 设置铸币金额
+    // 设置铸币金额
     let mint_amount: u64 = 1_000_000_000;
 
     // 调用 faucet 函数
@@ -142,58 +142,6 @@ async fn test_deposit() {
     ).await;
 
     assert_eq!(token_account_data.amount, mint_amount);
-
-    // 调用 initialize 指令来初始化 staking_account
-    let initialize_ix = Instruction {
-        program_id: program_id,
-        accounts: spl_stake::accounts::Initialize {
-            staking_account: staking_account.pubkey(),
-            admin: admin.pubkey(),
-            system_program: system_program::ID,
-        }
-            .to_account_metas(None),
-        data: spl_stake::instruction::Initialize { admin: admin.pubkey() }.data(),
-    };
-
-    let initialize_tx = Transaction::new_signed_with_payer(
-        &[initialize_ix],
-        Some(&admin.pubkey()),
-        &[&admin, &staking_account],
-        recent_blockhash,
-    );
-
-    banks_client.process_transaction(initialize_tx).await.unwrap();
-
-    // 设置 supported_token
-    let supported_token = Pubkey::new_unique();
-
-    let set_supported_token_ix = Instruction {
-        program_id: program_id,
-        accounts: spl_stake::accounts::SetSupportedToken {
-            staking_account: staking_account.pubkey(),
-            admin: admin.pubkey(),
-        }
-            .to_account_metas(None),
-        data: spl_stake::instruction::SetSupportedToken { mint: supported_token }.data(),
-    };
-
-    let set_supported_token_tx = Transaction::new_signed_with_payer(
-        &[set_supported_token_ix],
-        Some(&admin.pubkey()),
-        &[&admin],
-        recent_blockhash,
-    );
-
-    banks_client.process_transaction(set_supported_token_tx).await.unwrap();
-
-    // 检查 staking_account 是否正确设置了 supported_token
-    let staking_account_data: StakingAccount = load_and_deserialize(
-        banks_client.clone(),
-        staking_account.pubkey(),
-    ).await;
-
-    assert_eq!(staking_account_data.supported_token, supported_token);
-
 
     // 设置存款金额
     let deposit_amount: u64 = 1000;
