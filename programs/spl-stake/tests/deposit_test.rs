@@ -18,7 +18,6 @@ async fn test_deposit() {
         program_id,
         pt,
         admin,
-        user,
         user_account,
         staking_token_account,
         mint,
@@ -182,7 +181,6 @@ pub struct SetUpTest {
     pub program_id: Pubkey,
     pub pt: ProgramTest,
     pub admin: Keypair,
-    pub user: Keypair,
     pub user_account: Keypair,
     pub staking_token_account: Keypair,
     pub mint: Pubkey,
@@ -199,8 +197,6 @@ impl SetUpTest {
         let admin = Keypair::new();
         accounts.push(admin.insecure_clone());
         // 创建用户和质押账户
-        let user = Keypair::new();
-        accounts.push(user.insecure_clone());
         let user_account = Keypair::new();
         accounts.push(user_account.insecure_clone());
         let staking_token_account = Keypair::new();
@@ -260,7 +256,6 @@ impl SetUpTest {
             program_id,
             pt,
             admin,
-            user,
             user_account,
             staking_token_account,
             mint,
