@@ -207,7 +207,7 @@ async fn test_all() {
 
     // 反序列化并检查用户账户
     let user_account_data: UserAccount = load_and_deserialize(
-        banks_client,
+        banks_client.clone(),
         user_account.pubkey(),
     ).await;
 

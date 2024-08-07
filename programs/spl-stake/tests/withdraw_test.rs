@@ -194,18 +194,18 @@ async fn test_withdraw() {
         data: spl_stake::instruction::Withdraw { amount: withdraw_amount }.data(),
     };
 
-    let signed_txs = Transaction::new_signed_with_payer(
+    let withdraw_tx = Transaction::new_signed_with_payer(
         &[withdraw_ix],
         Some(&admin.pubkey()),
         &[&admin],
         recent_blockhash,
     );
 
-    banks_client.process_transaction(signed_txs).await.unwrap();
+    banks_client.process_transaction(withdraw_tx).await.unwrap();
 
     // 反序列化并检查用户账户
     let user_account_data: UserAccount = load_and_deserialize(
-        banks_client,
+        banks_client.clone(),
         user_account.pubkey(),
     ).await;
 

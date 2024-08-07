@@ -22,6 +22,7 @@ pub mod spl_stake {
 
     pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
+        require!(user_account.balance >= 0, StakingError::InsufficientFunds);
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_token_account.to_account_info(),
             to: ctx.accounts.staking_token_account.to_account_info(),
@@ -31,8 +32,16 @@ pub mod spl_stake {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, amount)?;
         user_account.balance += amount;
+
+        // Emit the deposit event
+        emit!(DepositEvent {
+            user: ctx.accounts.user_account.key(),
+            amount,
+        });
+
         Ok(())
     }
+
 
     pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
@@ -46,6 +55,13 @@ pub mod spl_stake {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, amount)?;
         user_account.balance -= amount;
+
+        // Emit the withdraw event
+        emit!(WithdrawEvent {
+            user: ctx.accounts.user_account.key(),
+            amount,
+        });
+
         Ok(())
     }
 
@@ -72,6 +88,20 @@ pub mod spl_stake {
     }
 }
 
+
+// Define the deposit event
+#[event]
+pub struct DepositEvent {
+    pub user: Pubkey,
+    pub amount: u64,
+}
+
+// Define the withdraw event
+#[event]
+pub struct WithdrawEvent {
+    pub user: Pubkey,
+    pub amount: u64,
+}
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
