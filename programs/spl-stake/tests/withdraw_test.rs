@@ -94,7 +94,7 @@ async fn test_withdraw() {
     // 创建并发送初始化 staking token account 的指令
     let init_staking_token_account_ix = token::spl_token::instruction::initialize_account(
         &token::ID,
-        &staking_token_account.pubkey(),
+        &staking_token_account,
         &mint,
         &admin.pubkey(),
     ).unwrap();
@@ -152,7 +152,7 @@ async fn test_withdraw() {
             user_account: user_account.pubkey(),
             user: admin.pubkey(),
             user_token_account: user_token_account,
-            staking_token_account: staking_token_account.pubkey(),
+            staking_token_account: staking_token_account,
             token_program: token::ID,
         }
             .to_account_metas(None),
@@ -186,7 +186,7 @@ async fn test_withdraw() {
             user_account: user_account.pubkey(),
             admin: admin.pubkey(),
             user_token_account: user_token_account,
-            staking_token_account: staking_token_account.pubkey(),
+            staking_token_account: staking_token_account,
             token_program: token::ID,
         }
             .to_account_metas(None),
@@ -217,7 +217,7 @@ pub struct SetUpTest {
     pub pt: ProgramTest,
     pub admin: Keypair,
     pub user_account: Keypair,
-    pub staking_token_account: Keypair,
+    pub staking_token_account: Pubkey,
     pub mint: Pubkey,
     pub user_token_account: Pubkey,
 }
@@ -234,8 +234,6 @@ impl SetUpTest {
         // 创建用户和质押账户
         let user_account = Keypair::new();
         accounts.push(user_account.insecure_clone());
-        let staking_token_account = Keypair::new();
-        accounts.push(staking_token_account.insecure_clone());
 
         for account in accounts {
             //create a new account and fund with 1 SOL
@@ -275,9 +273,9 @@ impl SetUpTest {
         );
 
         // 添加 staking token 账户
-        let staking_token_account_pubkey = staking_token_account.pubkey();
+        let staking_token_account = Pubkey::new_unique();
         pt.add_account(
-            staking_token_account_pubkey,
+            staking_token_account,
             Account {
                 lamports: 10000000000000,
                 data: vec![0; TokenAccount::LEN],
