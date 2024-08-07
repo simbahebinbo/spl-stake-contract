@@ -56,7 +56,7 @@ $ anchor build --arch sbf
 ```shell
 $ yarn install
 $ anchor test --arch sbf
-$ cargo test-bpf
+$ cargo test-sbf
 ```
 
 * 启动 solana 本地测试节点
