@@ -3,6 +3,8 @@ import {Program} from "@coral-xyz/anchor";
 import {SplStake} from "../target/types/spl_stake";
 import {assert} from "chai";
 
+const {SystemProgram} = require('@solana/web3.js');
+
 describe('spl-stake', () => {
     // Configure the client to use the local cluster.
     let provider = anchor.AnchorProvider.env();
@@ -52,8 +54,6 @@ describe('spl-stake', () => {
 
         console.log("All airdrops confirmed.");
 
-
-        const {SystemProgram} = require('@solana/web3.js');
 
         await program.methods
             .resetUserAccount()

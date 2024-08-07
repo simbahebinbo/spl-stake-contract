@@ -1,7 +1,8 @@
+import * as anchor from "@coral-xyz/anchor";
 import {Program} from "@coral-xyz/anchor";
 import {SplStake} from "../target/types/spl_stake";
 
-const anchor = require('@coral-xyz/anchor');
+const {SystemProgram} = anchor.web3;
 const {
     TOKEN_PROGRAM_ID,
     AccountLayout,
@@ -11,23 +12,25 @@ const {
 } = require('@solana/spl-token');
 const assert = require('chai').assert;
 
+
 describe('spl-stake', () => {
+
     // Configure the client to use the local cluster.
-    const provider = anchor.AnchorProvider.env();
+    let provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
     const program = anchor.workspace.SplStake as Program<SplStake>;
 
 
-    it('Is Faucet', async () => {
+    it("Is Deposit", async () => {
         const accounts = [];
-        // 创建一个新的 Keypair 作为费用支付者
         const admin = anchor.web3.Keypair.generate();
         accounts.push(admin);
+        const userAccount = anchor.web3.Keypair.generate();
+        accounts.push(userAccount);
 
         let initLamports = 1000000000
 
-        // 发放一定数量的 SOL 给费用支付者
         // 发起多个空投请求
         const airdropPromises = accounts.map(async (account) => {
             const airdrop_tx = await provider.connection.requestAirdrop(account.publicKey, initLamports);
@@ -60,7 +63,8 @@ describe('spl-stake', () => {
 
         console.log("All airdrops confirmed.");
 
-        // 创建一个新的 Keypair 作为代币 mint
+
+// 创建一个新的 Keypair 作为代币 mint
         const mint = anchor.web3.Keypair.generate();
         // 获取创建账户所需的最小租金
         const mintRent = await provider.connection.getMinimumBalanceForRentExemption(MintLayout.span);
@@ -125,6 +129,50 @@ describe('spl-stake', () => {
         console.log('user token account created:', userTokenAccount.publicKey.toBase58());
 
 
+        // Create token account for the staking
+        // 创建一个新的 Keypair 作为代币账户
+        const stakingTokenAccount = anchor.web3.Keypair.generate();
+        // 获取创建账户所需的最小租金
+        const stakingTokenAccountRent = await provider.connection.getMinimumBalanceForRentExemption(AccountLayout.span);
+
+        // 创建代币账户
+        const createStakingTokenAccountIx = anchor.web3.SystemProgram.createAccount({
+            fromPubkey: admin.publicKey,
+            newAccountPubkey: stakingTokenAccount.publicKey,
+            lamports: stakingTokenAccountRent,
+            space: AccountLayout.span, // 代币账户的大小
+            programId: TOKEN_PROGRAM_ID,
+        });
+
+        // 初始化代币账户的指令
+        const initStakingTokenAccountIx = createInitializeAccountInstruction(
+            stakingTokenAccount.publicKey, // 代币账户的公钥
+            mint.publicKey, // 代币 mint 的公钥
+            admin.publicKey, // 代币账户的所有者
+            TOKEN_PROGRAM_ID
+        );
+
+        // 构建交易并添加指令
+        const tx3 = new anchor.web3.Transaction()
+            .add(createStakingTokenAccountIx)
+            .add(initStakingTokenAccountIx);
+
+        // 签署并发送交易
+        await provider.sendAndConfirm(tx3, [admin, stakingTokenAccount], {commitment: 'confirmed'});
+        console.log('staking token account created:', stakingTokenAccount.publicKey.toBase58());
+
+
+        await program.methods
+            .resetUserAccount()
+            .accounts({
+                userAccount: userAccount.publicKey,
+                admin: admin.publicKey,
+                // @ts-ignore
+                systemProgram: SystemProgram.programId,
+            })
+            .signers([admin, userAccount])
+            .rpc();
+
         // Set the amount to be minted
         const mintAmount = 1000000000;
 
@@ -144,6 +192,25 @@ describe('spl-stake', () => {
         const userTokenAccountInfo = await provider.connection.getAccountInfo(userTokenAccount.publicKey);
         const accountData = AccountLayout.decode(Buffer.from(userTokenAccountInfo.data));
         assert.equal(accountData.amount, mintAmount);
+
+
+        let deposit_amount = 1000;
+
+        await program.methods
+            .deposit(new anchor.BN(deposit_amount))
+            .accounts({
+                userAccount: userAccount.publicKey,
+                user: admin.publicKey,
+                userTokenAccount: userTokenAccount.publicKey,
+                stakingTokenAccount: stakingTokenAccount.publicKey,
+                // @ts-ignore
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .signers([admin])
+            .rpc();
+
+        const userAccountRet = await program.account.userAccount.fetch(userAccount.publicKey);
+        assert.ok(userAccountRet.balance.eq(new anchor.BN(deposit_amount)));
     });
 });
 
