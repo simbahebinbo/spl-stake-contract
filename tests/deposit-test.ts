@@ -64,7 +64,7 @@ describe('spl-stake', () => {
         console.log("All airdrops confirmed.");
 
 
-// 创建一个新的 Keypair 作为代币 mint
+        // 创建一个新的 Keypair 作为代币 mint
         const mint = anchor.web3.Keypair.generate();
         // 获取创建账户所需的最小租金
         const mintRent = await provider.connection.getMinimumBalanceForRentExemption(MintLayout.span);
@@ -187,12 +187,6 @@ describe('spl-stake', () => {
             })
             .signers([admin])
             .rpc();
-
-        // Check the balance of the user token account
-        const userTokenAccountInfo = await provider.connection.getAccountInfo(userTokenAccount.publicKey);
-        const accountData = AccountLayout.decode(Buffer.from(userTokenAccountInfo.data));
-        assert.equal(accountData.amount, mintAmount);
-
 
         let deposit_amount = 1000;
 

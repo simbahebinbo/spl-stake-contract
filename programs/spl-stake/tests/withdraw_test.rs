@@ -75,21 +75,21 @@ async fn test_withdraw() {
     banks_client.process_transaction(init_mint_tx).await.unwrap();
 
     // 创建并发送初始化 token account 的指令
-    let init_token_account_ix = token::spl_token::instruction::initialize_account(
+    let init_user_token_account_ix = token::spl_token::instruction::initialize_account(
         &token::ID,
         &user_token_account,
         &mint,
         &admin.pubkey(),
     ).unwrap();
 
-    let init_token_account_tx = Transaction::new_signed_with_payer(
-        &[init_token_account_ix],
+    let init_user_token_account_tx = Transaction::new_signed_with_payer(
+        &[init_user_token_account_ix],
         Some(&admin.pubkey()),
         &[&admin],
         recent_blockhash,
     );
 
-    banks_client.process_transaction(init_token_account_tx).await.unwrap();
+    banks_client.process_transaction(init_user_token_account_tx).await.unwrap();
 
     // 创建并发送初始化 staking token account 的指令
     let init_staking_token_account_ix = token::spl_token::instruction::initialize_account(

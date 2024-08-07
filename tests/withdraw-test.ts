@@ -21,7 +21,7 @@ describe('spl-stake', () => {
     const program = anchor.workspace.SplStake as Program<SplStake>;
 
 
-    it("Is All", async () => {
+    it("Is Withdraw", async () => {
         const accounts = [];
         const admin = anchor.web3.Keypair.generate();
         accounts.push(admin);
