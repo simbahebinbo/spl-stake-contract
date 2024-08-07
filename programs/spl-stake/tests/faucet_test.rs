@@ -33,14 +33,14 @@ async fn test_faucet() {
         9, // decimals
     ).unwrap();
 
-    let tx = Transaction::new_signed_with_payer(
+    let init_mint_tx = Transaction::new_signed_with_payer(
         &[init_mint_ix],
         Some(&admin.pubkey()),
         &[&admin],
         recent_blockhash,
     );
 
-    banks_client.process_transaction(tx).await.unwrap();
+    banks_client.process_transaction(init_mint_tx).await.unwrap();
 
     // 创建并发送初始化 token account 的指令
     let init_token_account_ix = token::spl_token::instruction::initialize_account(

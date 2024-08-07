@@ -1,8 +1,9 @@
 import * as anchor from "@coral-xyz/anchor";
 import {Program} from "@coral-xyz/anchor";
 import {SplStake} from "../target/types/spl_stake";
-import {assert, expect} from "chai";
-const { SystemProgram } = anchor.web3;
+
+const {SystemProgram} = anchor.web3;
+const {TOKEN_PROGRAM_ID, Token, createMint} = require('@solana/spl-token');
 
 describe('spl-stake', () => {
 
@@ -13,134 +14,162 @@ describe('spl-stake', () => {
     const program = anchor.workspace.SplStake as Program<SplStake>;
 
 
-    beforeEach(async () => {
-
-    });
-
-    afterEach(async () => {
-
-    });
-
-
-    it("Is All", async () => {
-        const accounts = [];
-        const deployer = anchor.web3.Keypair.generate();
-        accounts.push(deployer);
-        const admin = anchor.web3.Keypair.generate();
-        accounts.push(admin);
-        const user = anchor.web3.Keypair.generate();
-        accounts.push(user);
-        const stakingAccount = anchor.web3.Keypair.generate();
-        accounts.push(stakingAccount);
-
-        let initLamports = 1000000000
-
-        // 发起多个空投请求
-        const airdropPromises = accounts.map(async (account) => {
-            const airdrop_tx = await provider.connection.requestAirdrop(account.publicKey, initLamports);
-            return { airdrop_tx, account };
-        });
-
-        // 等待所有空投请求完成
-        const airdropResults = await Promise.all(airdropPromises);
-
-        // 获取最新的区块哈希
-        const latestBlockHash = await provider.connection.getLatestBlockhash();
-
-        // 确认每个空投交易
-        const confirmationPromises = airdropResults.map(({ airdrop_tx, account }) =>
-            provider.connection.confirmTransaction({
-                blockhash: latestBlockHash.blockhash,
-                lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-                signature: airdrop_tx
-            }).then((confirmation) => {
-                console.log(`Airdrop to ${account.publicKey.toBase58()} confirmed`, confirmation);
-                return confirmation;
-            }).catch((error) => {
-                console.error(`Error confirming airdrop to ${account.publicKey.toBase58()}`, error);
-                throw error;
-            })
-        );
-
-        // 等待所有确认请求完成
-        await Promise.all(confirmationPromises);
-
-        console.log("All airdrops confirmed.");
-        
-        await program.methods
-                .initialize(admin.publicKey)
-                .accounts({
-                    stakingAccount: stakingAccount.publicKey,
-                    deployer: deployer.publicKey,
-                    // @ts-ignore
-                    systemProgram: SystemProgram.programId,
-                })
-                .signers([stakingAccount, deployer])
-                .rpc();
-
-        const account = await program.account.stakingAccount.fetch(stakingAccount.publicKey);
-        assert.ok(account.admin.equals(admin.publicKey));
-
-
-            // Add your test here.
-            // let airdrop_tx = await provider.connection.requestAirdrop(
-            //     user.publicKey,
-            //     1000000000
-            // );
-            // const latestBlockHash = await provider.connection.getLatestBlockhash();
-            // await provider.connection.confirmTransaction({
-            //     blockhash: latestBlockHash.blockhash,
-            //     lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-            //     signature: airdrop_tx
-            // })
-
-            // const admin = provider.wallet.publicKey;
-            //
-            // await program.rpc.initialize(admin, {
-            //     accounts: {
-            //         stakingAccount: stakingAccount.publicKey,
-            //         deployer: provider.wallet.publicKey,
-            //         systemProgram: SystemProgram.programId,
-            //     },
-            //     signers: [stakingAccount],
-            // });
-
-        //     const account = await program.account.stakingAccount.fetch(stakingAccount.publicKey);
-        //     assert.ok(account.admin.equals(admin));
-
-// const supportedToken = anchor.web3.Keypair.generate().publicKey;
-// const admin = provider.wallet.publicKey;
+//     it("Is All", async () => {
+//         const accounts = [];
+//         const deployer = anchor.web3.Keypair.generate();
+//         accounts.push(deployer);
+//         const admin = anchor.web3.Keypair.generate();
+//         accounts.push(admin);
+//         const user = anchor.web3.Keypair.generate();
+//         accounts.push(user);
+//         const stakingAccount = anchor.web3.Keypair.generate();
+//         accounts.push(stakingAccount);
+// const stakingTokenAccount = anchor.web3.Keypair.generate();
+//         accounts.push(stakingTokenAccount);
+//         const userAccount = anchor.web3.Keypair.generate();
+//         accounts.push(userAccount);
 //
-// await program.rpc.setSupportedToken(supportedToken, {
-//     accounts: {
-//         stakingAccount: stakingAccount.publicKey,
-//         admin: admin,
-    });
+//         let initLamports = 1000000000
+//
+//         // 发起多个空投请求
+//         const airdropPromises = accounts.map(async (account) => {
+//             const airdrop_tx = await provider.connection.requestAirdrop(account.publicKey, initLamports);
+//             return { airdrop_tx, account };
+//         });
+//
+//         // 等待所有空投请求完成
+//         const airdropResults = await Promise.all(airdropPromises);
+//
+//         // 获取最新的区块哈希
+//         const latestBlockHash = await provider.connection.getLatestBlockhash();
+//
+//         // 确认每个空投交易
+//         const confirmationPromises = airdropResults.map(({ airdrop_tx, account }) =>
+//             provider.connection.confirmTransaction({
+//                 blockhash: latestBlockHash.blockhash,
+//                 lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+//                 signature: airdrop_tx
+//             }).then((confirmation) => {
+//                 console.log(`Airdrop to ${account.publicKey.toBase58()} confirmed`, confirmation);
+//                 return confirmation;
+//             }).catch((error) => {
+//                 console.error(`Error confirming airdrop to ${account.publicKey.toBase58()}`, error);
+//                 throw error;
+//             })
+//         );
+//
+//         // 等待所有确认请求完成
+//         await Promise.all(confirmationPromises);
+//
+//         console.log("All airdrops confirmed.");
+//
+//         const mintAuthority = anchor.web3.Keypair.generate();
+//         const mint = await createMint(
+//             provider.connection,
+//             admin,
+//             mintAuthority.publicKey,
+//             null,
+//             9, // Decimal places
+//         );
+//
+//         const userTokenAccountAuthority = anchor.web3.Keypair.generate();
+//         const userTokenAccount = await getOrCreateAssociatedTokenAccount(
+//             provider.connection,
+//             admin,
+//             mint,
+//             userTokenAccountAuthority.publicKey
+//         );
+//
+//
+// //         await program.methods
+// //                 .initialize(admin.publicKey)
+// //                 .accounts({
+// //                     stakingAccount: stakingAccount.publicKey,
+// //                     deployer: deployer.publicKey,
+// //                     // @ts-ignore
+// //                     systemProgram: SystemProgram.programId,
+// //                 })
+// //                 .signers([stakingAccount, deployer])
+// //                 .rpc();
+// //
+// //         const stakingAccountRet1 = await program.account.stakingAccount.fetch(stakingAccount.publicKey);
+// //         assert.ok(stakingAccountRet1.admin.equals(admin.publicKey));
+// //
+// //
+// //         const supportedToken = anchor.web3.Keypair.generate().publicKey;
+// //
+// //         await program.methods
+// //             .setSupportedToken(supportedToken)
+// //             .accounts({
+// //                 stakingAccount: stakingAccount.publicKey,
+// //                 admin: admin.publicKey,
+// //             })
+// //             .signers([admin])
+// //             .rpc();
+// //
+// //         const stakingAccountRet2 = await program.account.stakingAccount.fetch(stakingAccount.publicKey);
+// //         assert.ok(stakingAccountRet2.supportedToken.equals(supportedToken));
+// //
+// //
+// //         let mint_amount = 1_000_000_000;
+// //
+// //         await program.methods
+// //             .faucet(new anchor.BN(mint_amount))
+// //             .accounts({
+// //                 mint: mint,
+// //                 userTokenAccount: userTokenAccount.address,
+// //                 admin: admin.publicKey,
+// //                 // @ts-ignore
+// //                 tokenProgram: TOKEN_PROGRAM_ID,
+// //             })
+// //             .signers([admin])
+// //             .rpc();
+//
+//         await program.methods
+//             .faucet(new anchor.BN(1000))
+//             .accounts({
+//                 mint: mint,
+//                 userTokenAccount: userTokenAccount.address,
+//                 admin: admin.publicKey,
+//                 tokenProgram: TOKEN_PROGRAM_ID,
+//             })
+//             .signers([admin])
+//             .rpc();
+//
+// //         // Fetch the user token account after calling faucet
+// //         const userTokenAccountInfo = await getAccount(provider.connection, userTokenAccount.address);
+// //
+// //         // Check if the user token account received the correct amount of tokens
+// //         assert.ok(userTokenAccountInfo.amount ===mint_amount);
+//
+//         console.log("Faucet operation successful, user received 1000 tokens");
+//
+// // const userTokenAccountRet = await program.account.userAccount.fetch(userTokenAccount.publicKey);
+// // assert.ok(userTokenAccountRet.balance.eq(new anchor.BN(mint_amount)));
+//
+//
+// //         let deposit_amount = 1000;
+// //
+// //         await program.methods
+// //             .deposit(new anchor.BN(deposit_amount))
+// //             .accounts({
+// //                 userAccount: userAccount.publicKey,
+// //                 user: admin.publicKey,
+// //                 userTokenAccount: userTokenAccount.publicKey,
+// //                 stakingTokenAccount: stakingTokenAccount.publicKey,
+// //                 // @ts-ignore
+// //                 tokenProgram: TOKEN_PROGRAM_ID,
+// //             })
+// //             .signers([admin])
+// //             .rpc();
+// //
+// // const userAccountRet = await program.account.userAccount.fetch(userAccount.publicKey);
+// // assert.ok(userAccountRet.balance.eq(new anchor.BN(deposit_amount)));
+//
+//     });
 });
 
 
-//
-// const account = await program.account.stakingAccount.fetch(stakingAccount.publicKey);
-// assert.ok(account.supportedToken.equals(supportedToken));
-//
-// const user = provider.wallet.publicKey;
-// const userTokenAccount = anchor.web3.Keypair.generate();
-// const stakingTokenAccount = anchor.web3.Keypair.generate();
-//
-// await program.rpc.deposit(new anchor.BN(1000), {
-//     accounts: {
-//         userAccount: userAccount.publicKey,
-//         user: user,
-//         userTokenAccount: userTokenAccount.publicKey,
-//         stakingTokenAccount: stakingTokenAccount.publicKey,
-//         tokenProgram: anchor.web3.TOKEN_PROGRAM_ID,
-//     },
-//     signers: [],
-// });
-//
-// const account = await program.account.userAccount.fetch(userAccount.publicKey);
-// assert.ok(account.balance.eq(new anchor.BN(1000)));
-//
 //
 // const admin = provider.wallet.publicKey;
 // const userTokenAccount = anchor.web3.Keypair.generate();
