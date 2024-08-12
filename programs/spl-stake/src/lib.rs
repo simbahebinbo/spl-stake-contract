@@ -22,7 +22,7 @@ pub mod spl_stake {
 
     pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
-        require!(user_account.balance >= 0, StakingError::InsufficientFunds);
+        require!(user_account.amount >= 0, StakingError::InsufficientFunds);
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_token_account.to_account_info(),
             to: ctx.accounts.staking_token_account.to_account_info(),
@@ -31,7 +31,7 @@ pub mod spl_stake {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, amount)?;
-        user_account.balance += amount;
+        user_account.amount += amount;
 
         // Emit the deposit event
         emit!(DepositEvent {
@@ -45,7 +45,7 @@ pub mod spl_stake {
 
     pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
-        require!(user_account.balance >= amount, StakingError::InsufficientFunds);
+        require!(user_account.amount >= amount, StakingError::InsufficientFunds);
         let cpi_accounts = Transfer {
             from: ctx.accounts.staking_token_account.to_account_info(),
             to: ctx.accounts.user_token_account.to_account_info(),
@@ -54,7 +54,7 @@ pub mod spl_stake {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, amount)?;
-        user_account.balance -= amount;
+        user_account.amount -= amount;
 
         // Emit the withdraw event
         emit!(WithdrawEvent {
@@ -79,7 +79,7 @@ pub mod spl_stake {
 
     pub fn reset_user_account(ctx: Context<ResetUserAccount>) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
-        user_account.balance = 0;
+        user_account.amount = 0;
         Ok(())
     }
 
@@ -185,7 +185,7 @@ pub struct Simulate<'info> {
 
 #[account]
 pub struct UserAccount {
-    pub balance: u64,
+    pub amount: u64,
 }
 
 impl UserAccount {

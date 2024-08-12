@@ -218,6 +218,6 @@ describe('spl-stake', () => {
             .rpc();
 
         const account = await program.account.userAccount.fetch(userAccount.publicKey);
-        assert.ok(account.balance.eq(new anchor.BN(deposit_amount - withdraw_amount)));
+        assert.ok(account.amount.eq(new anchor.BN(deposit_amount - withdraw_amount)));
     });
 });

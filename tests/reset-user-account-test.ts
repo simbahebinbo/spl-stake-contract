@@ -67,7 +67,7 @@ describe('spl-stake', () => {
             .rpc();
 
         const userAccountRet = await program.account.userAccount.fetch(userAccount.publicKey);
-        assert.ok(userAccountRet.balance.eq(new anchor.BN(0)));
+        assert.ok(userAccountRet.amount.eq(new anchor.BN(0)));
     });
 });
 

@@ -54,7 +54,7 @@ async fn test_deposit() {
     ).await;
 
     // 确保用户账户的余额已更新
-    assert_eq!(user_account_data.balance, 0);
+    assert_eq!(user_account_data.amount, 0);
 
     // 创建并发送初始化 mint 的指令
     let init_mint_ix = token::spl_token::instruction::initialize_mint(
@@ -133,7 +133,7 @@ async fn test_deposit() {
     );
     banks_client.process_transaction(faucet_tx).await.unwrap();
 
-    // Check the balance of the user token account
+    // Check the amount of the user token account
     let token_account_data: TokenAccount = load_and_deserialize(
         banks_client.clone(),
         user_token_account,
@@ -174,7 +174,7 @@ async fn test_deposit() {
     ).await;
 
     // 确保用户账户的余额已更新
-    assert_eq!(user_account_data.balance, deposit_amount);
+    assert_eq!(user_account_data.amount, deposit_amount);
 }
 
 pub struct SetUpTest {

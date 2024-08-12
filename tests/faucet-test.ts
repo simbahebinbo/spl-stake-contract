@@ -140,7 +140,7 @@ describe('spl-stake', () => {
             .signers([admin])
             .rpc();
 
-        // Check the balance of the user token account
+        // Check the amount of the user token account
         const userTokenAccountInfo = await provider.connection.getAccountInfo(userTokenAccount.publicKey);
         const accountData = AccountLayout.decode(Buffer.from(userTokenAccountInfo.data));
         assert.equal(accountData.amount, mintAmount);

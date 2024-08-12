@@ -204,7 +204,7 @@ describe('spl-stake', () => {
             .rpc();
 
         const userAccountRet = await program.account.userAccount.fetch(userAccount.publicKey);
-        assert.ok(userAccountRet.balance.eq(new anchor.BN(deposit_amount)));
+        assert.ok(userAccountRet.amount.eq(new anchor.BN(deposit_amount)));
     });
 });
 

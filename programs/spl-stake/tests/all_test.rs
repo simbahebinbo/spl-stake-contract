@@ -55,7 +55,7 @@ async fn test_all() {
     ).await;
 
     // 确保用户账户的余额已更新
-    assert_eq!(user_account_data.balance, 0);
+    assert_eq!(user_account_data.amount, 0);
 
 
     // 创建并发送初始化 mint 的指令
@@ -135,7 +135,7 @@ async fn test_all() {
     );
     banks_client.process_transaction(faucet_tx).await.unwrap();
 
-    // Check the balance of the user token account
+    // Check the amount of the user token account
     let token_account_data: TokenAccount = load_and_deserialize(
         banks_client.clone(),
         user_token_account,
@@ -177,7 +177,7 @@ async fn test_all() {
     ).await;
 
     // 确保用户账户的余额已更新
-    assert_eq!(user_account_data.balance, deposit_amount);
+    assert_eq!(user_account_data.amount, deposit_amount);
 
     // 设置提现金额
     let withdraw_amount: u64 = 500;
@@ -211,7 +211,7 @@ async fn test_all() {
     ).await;
 
     // 确保用户账户的余额已更新
-    assert_eq!(user_account_data.balance, deposit_amount - withdraw_amount);
+    assert_eq!(user_account_data.amount, deposit_amount - withdraw_amount);
 }
 
 

@@ -51,7 +51,7 @@ async fn test_reset_user_account() {
     ).await;
 
     // 确保用户账户的余额已更新
-    assert_eq!(user_account_data.balance, 0);
+    assert_eq!(user_account_data.amount, 0);
 }
 
 

@@ -84,7 +84,7 @@ async fn test_faucet() {
     );
     banks_client.process_transaction(faucet_tx).await.unwrap();
 
-    // Check the balance of the user token account
+    // Check the amount of the user token account
     let token_account_data: TokenAccount = load_and_deserialize(
         banks_client.clone(),
         user_token_account,
