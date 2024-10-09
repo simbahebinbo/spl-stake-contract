@@ -24,10 +24,10 @@ anchor-lang = { version = "0.30.1", features = ["init-if-needed"] }
 anchor-spl = "0.30.1"
 
 [dev-dependencies]
-solana-program-test = "=1.18.15"
-solana-program = "=1.18.15"
-solana-sdk = "=1.18.15"
-anyhow = "1.0.86"
-tokio = "1.39.2"
+solana-program-test = "1.18.25"
+solana-program = "1.18.25"
+solana-sdk = "1.18.25"
+anyhow = "1.0.89"
+tokio = "1.40.0"
 spl-token = "6.0.0"
 
