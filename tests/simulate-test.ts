@@ -1,17 +1,14 @@
 import * as anchor from "@coral-xyz/anchor";
-import {Program} from "@coral-xyz/anchor";
-import {SplStake} from "../target/types/spl_stake";
-import {getOrCreateAssociatedTokenAccount} from "@solana/spl-token";
 
-const {SystemProgram} = anchor.web3;
-const {TOKEN_PROGRAM_ID, Token, createMint} = require('@solana/spl-token');
+import {SplStake} from "../target/types/spl_stake";
+import {createMint, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 
 describe('spl-stake', () => {
     // Configure the client to use the local cluster.
     let provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.SplStake as Program<SplStake>;
+    const program = anchor.workspace.SplStake as anchor.Program<SplStake>;
 
 
     it("Is Simulate", async () => {

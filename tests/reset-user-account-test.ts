@@ -1,16 +1,14 @@
 import * as anchor from "@coral-xyz/anchor";
-import {Program} from "@coral-xyz/anchor";
+
 import {SplStake} from "../target/types/spl_stake";
 import {assert} from "chai";
-
-const {SystemProgram} = require('@solana/web3.js');
 
 describe('spl-stake', () => {
     // Configure the client to use the local cluster.
     let provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.SplStake as Program<SplStake>;
+    const program = anchor.workspace.SplStake as anchor.Program<SplStake>;
 
 
     it("Is ResetUserAccount", async () => {
@@ -61,7 +59,7 @@ describe('spl-stake', () => {
                 userAccount: userAccount.publicKey,
                 admin: admin.publicKey,
                 // @ts-ignore
-                systemProgram: SystemProgram.programId,
+                systemProgram: anchor.web3.SystemProgram.programId,
             })
             .signers([admin, userAccount])
             .rpc();

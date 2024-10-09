@@ -1,15 +1,15 @@
 import * as anchor from "@coral-xyz/anchor";
-import {Program} from "@coral-xyz/anchor";
-import {SplStake} from "../target/types/spl_stake";
 
-const {SystemProgram} = anchor.web3;
-const {
-    TOKEN_PROGRAM_ID,
+import {SplStake} from "../target/types/spl_stake";
+import {
     AccountLayout,
-    MintLayout,
+    createInitializeAccountInstruction,
     createInitializeMintInstruction,
-    createInitializeAccountInstruction
-} = require('@solana/spl-token');
+    MintLayout,
+    TOKEN_PROGRAM_ID
+} from '@solana/spl-token';
+
+
 const assert = require('chai').assert;
 
 describe('spl-stake', () => {
@@ -18,7 +18,7 @@ describe('spl-stake', () => {
     let provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.SplStake as Program<SplStake>;
+    const program = anchor.workspace.SplStake as anchor.Program<SplStake>;
 
 
     it("Is Withdraw", async () => {
@@ -166,7 +166,7 @@ describe('spl-stake', () => {
                 userAccount: userAccount.publicKey,
                 admin: admin.publicKey,
                 // @ts-ignore
-                systemProgram: SystemProgram.programId,
+                systemProgram: anchor.web3.SystemProgram.programId,
             })
             .signers([admin, userAccount])
             .rpc();

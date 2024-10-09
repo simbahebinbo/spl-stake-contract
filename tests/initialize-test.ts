@@ -1,16 +1,15 @@
 import * as anchor from "@coral-xyz/anchor";
-import {Program} from "@coral-xyz/anchor";
+
 import {SplStake} from "../target/types/spl_stake";
 import {assert} from "chai";
 
-const {SystemProgram} = anchor.web3;
 
 describe('spl-stake', () => {
     // Configure the client to use the local cluster.
     let provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.SplStake as Program<SplStake>;
+    const program = anchor.workspace.SplStake as anchor.Program<SplStake>;
 
 
     it("Is Initialize", async () => {
@@ -62,7 +61,7 @@ describe('spl-stake', () => {
                 stakingAccount: stakingAccount.publicKey,
                 deployer: deployer.publicKey,
                 // @ts-ignore
-                systemProgram: SystemProgram.programId,
+                systemProgram: anchor.web3.SystemProgram.programId,
             })
             .signers([stakingAccount, deployer])
             .rpc();
