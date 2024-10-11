@@ -8,7 +8,7 @@ import {
     TOKEN_PROGRAM_ID
 } from '@solana/spl-token';
 
-const assert = require('chai').assert;
+import {assert} from "chai";
 
 describe('spl-stake', () => {
 

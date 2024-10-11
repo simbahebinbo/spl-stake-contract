@@ -9,7 +9,7 @@ import {
     TOKEN_PROGRAM_ID
 } from '@solana/spl-token';
 
-const assert = require('chai').assert;
+import {assert} from "chai";
 
 describe('spl-stake', () => {
     // Configure the client to use the local cluster.

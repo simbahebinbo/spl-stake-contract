@@ -10,7 +10,7 @@ import {
 } from '@solana/spl-token';
 
 
-const assert = require('chai').assert;
+import {assert} from "chai";
 
 describe('spl-stake', () => {
 
