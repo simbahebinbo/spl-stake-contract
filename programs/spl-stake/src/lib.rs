@@ -22,7 +22,6 @@ pub mod spl_stake {
 
     pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         let user_account = &mut ctx.accounts.user_account;
-        require!(user_account.amount >= 0, StakingError::InsufficientFunds);
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_token_account.to_account_info(),
             to: ctx.accounts.staking_token_account.to_account_info(),
@@ -83,7 +82,7 @@ pub mod spl_stake {
         Ok(())
     }
 
-    pub fn simulate(ctx: Context<Simulate>) -> Result<()> {
+    pub fn simulate(_ctx: Context<Simulate>) -> Result<()> {
         Ok(())
     }
 }

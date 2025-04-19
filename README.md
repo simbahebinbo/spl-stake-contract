@@ -53,7 +53,7 @@ $ yarn --version
 * 编译
 
 ```shell
-$ anchor build --arch sbf
+$ anchor build --arch sbf --no-idl
 ```
 
 * 运行单元测试
