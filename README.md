@@ -14,46 +14,46 @@ SPL 质押合约
 
 
 ```shell
-$ cargo version
-cargo 1.80.0 (376290515 2024-07-16)
-$ rustc --version
-rustc 1.80.0 (051478957 2024-07-21)
+$ cargo --version         
+cargo 1.86.0 (adf9b6ad1 2025-02-28)
+$ rustc --version                                        
+rustc 1.86.0 (05f9846f8 2025-03-31)
 ```
 
 ```shell
 $ solana --version
-solana-cli 1.18.15 (src:767d24e5; feat:4215500110, client:SolanaLabs)
+solana-cli 2.2.11 (src:fd63ecda; feat:1522022101, client:Agave)
 ```
 
 ```shell
 $ solana-test-validator --version
-solana-test-validator 1.18.15 (src:767d24e5; feat:4215500110, client:SolanaLabs)
+solana-test-validator 2.2.11 (src:fd63ecda; feat:1522022101, client:Agave)
 ```
 
 ```shell
-$ anchor --version   
-anchor-cli 0.30.1
+$ anchor --version
+anchor-cli 0.31.1
 ```
 
 ```shell
-$ node --version
-v20.16.0
+$ node --version            
+v22.14.0
 ```
 
 ```shell
 $ npm --version
-10.8.1
+11.3.0
 ```
 
 ```shell
-$ yarn --version
+$ yarn --version     
 1.22.22
 ```
 
 * 编译
 
 ```shell
-$ anchor build --arch sbf --no-idl
+$ anchor build --arch sbf
 ```
 
 * 运行单元测试
@@ -61,7 +61,6 @@ $ anchor build --arch sbf --no-idl
 ```shell
 $ yarn install
 $ anchor test --arch sbf
-$ cargo test-sbf
 ```
 
 * 启动 solana 本地测试节点
